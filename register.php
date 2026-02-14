@@ -1,44 +1,52 @@
-<?php
-session_start();
-require 'db.php';
+<!DOCTYPE html>
+<html>
 
-if (isset($_POST['register'])) {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-
-    if (empty($name) || empty($email) || empty($password)) {
-        $error = "All fields are required!";
-    } else {
-
-        // Check if email already exists
-        $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-        $check->execute([$email]);
-
-        if ($check->rowCount() > 0) {
-            $error = "Email already registered!";
-        } else {
-
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-            $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-            $stmt->execute([$name, $email, $hashedPassword]);
-
-            $_SESSION['success'] = "Registration successful! Please login.";
-            header("Location: login.php");
-            exit();
+<head>
+    <title>Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
         }
-    }
-}
-?>
 
-<form method="POST">
-    <h2>Register</h2>
-    <?php if (isset($error)) echo "<p style='color:red'>$error</p>"; ?>
-    <input type="text" name="name" placeholder="Name"><br><br>
-    <input type="email" name="email" placeholder="Email"><br><br>
-    <input type="password" name="password" placeholder="Password"><br><br>
-    <button type="submit" name="register">Register</button>
-</form>
+        .card {
+            width: 400px;
+            border-radius: 20px;
+        }
 
-<a href="login.php">Already have an account? Login</a>
+        .form-control {
+            border-radius: 30px;
+        }
+
+        .btn {
+            border-radius: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card shadow-lg p-4">
+        <h3 class="text-center mb-4">Create Account ✨</h3>
+
+        <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
+
+        <form method="POST">
+            <input type="text" name="name" class="form-control mb-3" placeholder="Full Name">
+            <input type="email" name="email" class="form-control mb-3" placeholder="Email">
+            <input type="password" name="password" class="form-control mb-3" placeholder="Password">
+            <button type="submit" name="register" class="btn btn-primary w-100">Register</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="login.php">Already have an account?</a>
+        </div>
+    </div>
+
+</body>
+
+</html>
