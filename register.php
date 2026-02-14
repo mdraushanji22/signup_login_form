@@ -1,3 +1,36 @@
+<?php
+session_start();
+require 'db.php';
+
+if (isset($_POST['register'])) {
+
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    if (empty($name) || empty($email) || empty($password)) {
+        $error = "All fields are required!";
+    } else {
+
+        $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+        $check->execute([$email]);
+
+        if ($check->rowCount() > 0) {
+            $error = "Email already exists!";
+        } else {
+
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+            $stmt = $pdo->prepare("INSERT INTO users (name,email,password) VALUES (?,?,?)");
+            $stmt->execute([$name, $email, $hashedPassword]);
+
+            $_SESSION['success'] = "Registration successful! Please login.";
+            header("Location: login.php");
+            exit();
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -18,10 +51,7 @@
             border-radius: 20px;
         }
 
-        .form-control {
-            border-radius: 30px;
-        }
-
+        .form-control,
         .btn {
             border-radius: 30px;
         }
@@ -31,7 +61,7 @@
 <body>
 
     <div class="card shadow-lg p-4">
-        <h3 class="text-center mb-4">Create Account ✨</h3>
+        <h4 class="text-center mb-3">Create Account ✨</h4>
 
         <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
 
